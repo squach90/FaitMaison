@@ -33,23 +33,43 @@ if (!is_dir($uploadDir)) {
 }
 
 /**
+ * Fonction pour vérifier si un chemin d'image existe déjà dans la base de données.
+ */
+function getExistingImagePath($mysqlClient, $filename) {
+    $stmt = $mysqlClient->prepare('SELECT imagePath FROM recipes WHERE imagePath = :imagePath');
+    $stmt->execute(['imagePath' => './images/' . $filename]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['imagePath'] : null;
+}
+
+/**
  * Fonction pour gérer l'upload d'une image, retourne le chemin relatif ou null si erreur.
  */
-function handleImageUpload(string $inputName, string $uploadDir, array $allowedExtensions, int $maxFileSize): ?string {
+function handleImageUpload($mysqlClient, $inputName, $uploadDir, $allowedExtensions, $maxFileSize) {
     if (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] === 0) {
         if ($_FILES[$inputName]['size'] > $maxFileSize) {
             echo "Le fichier {$inputName} est trop volumineux.<br>";
             return null;
         }
+
         $fileInfo = pathinfo($_FILES[$inputName]['name']);
-        $extension = strtolower($fileInfo['extension']);
-        if (!in_array($extension, $allowedExtensions)) {
-            echo "Extension {$extension} non autorisée pour {$inputName}.<br>";
-            return null;
-        }
-        // Génération d'un nom unique pour éviter les collisions
-        $filename = uniqid() . '.' . $extension;
+        $filename = $fileInfo['filename'] . '.' . strtolower($fileInfo['extension']);
         $destination = $uploadDir . $filename;
+
+        // Vérifie si le chemin de l'image existe déjà dans la base de données
+        $existingPath = getExistingImagePath($mysqlClient, $filename);
+        if ($existingPath) {
+            echo "Le fichier {$filename} existe déjà dans la base de données.<br>";
+            return $existingPath;
+        }
+
+        // Vérifie si le fichier existe déjà dans le dossier
+        if (file_exists($destination)) {
+            echo "Le fichier {$filename} existe déjà dans le dossier.<br>";
+            return './images/' . $filename;
+        }
+
+        // Déplace le fichier téléchargé vers le dossier de destination
         if (move_uploaded_file($_FILES[$inputName]['tmp_name'], $destination)) {
             // Retourne le chemin relatif pour insertion en base et affichage
             return './images/' . $filename;
@@ -58,15 +78,16 @@ function handleImageUpload(string $inputName, string $uploadDir, array $allowedE
             return null;
         }
     }
+
     // Pas d'image uploadée, on retourne null
     return null;
 }
 
 // Traitement des uploads
-$screenshotPath = handleImageUpload('screenshot', $uploadDir, $allowedExtensions, $maxFileSize);
-$galleryImage1Path = handleImageUpload('galleryImage1', $uploadDir, $allowedExtensions, $maxFileSize);
-$galleryImage2Path = handleImageUpload('galleryImage2', $uploadDir, $allowedExtensions, $maxFileSize);
-$galleryImage3Path = handleImageUpload('galleryImage3', $uploadDir, $allowedExtensions, $maxFileSize);
+$screenshotPath = handleImageUpload($mysqlClient, 'screenshot', $uploadDir, $allowedExtensions, $maxFileSize);
+$galleryImage1Path = handleImageUpload($mysqlClient, 'galleryImage1', $uploadDir, $allowedExtensions, $maxFileSize);
+$galleryImage2Path = handleImageUpload($mysqlClient, 'galleryImage2', $uploadDir, $allowedExtensions, $maxFileSize);
+$galleryImage3Path = handleImageUpload($mysqlClient, 'galleryImage3', $uploadDir, $allowedExtensions, $maxFileSize);
 
 // Nettoyage des données
 $id = (int)$postData['id'];
@@ -105,22 +126,17 @@ $updateRecipe->execute([
 </head>
 <body class="d-flex flex-column min-vh-100">
     <div class="container">
-
         <?php require_once(__DIR__ . '/header.php'); ?>
         <h1>Recette modifiée avec succès !</h1>
-
         <div class="card">
-
             <div class="card-body">
                 <h5 class="card-title"><?php echo(htmlspecialchars($title)); ?></h5>
                 <p class="card-text"><b>Email</b> : <?php echo htmlspecialchars($_SESSION['LOGGED_USER']['email']); ?></p>
                 <p class="card-text"><b>Recette</b> : <?php echo nl2br(htmlspecialchars($recipe)); ?></p>
-
                 <?php if ($screenshotPath): ?>
                     <p><b>Image principale :</b><br>
                     <img src="<?php echo htmlspecialchars($screenshotPath); ?>" alt="Image principale" class="img-fluid"></p>
                 <?php endif; ?>
-
                 <p><b>Galerie d'images :</b><br>
                 <?php
                 foreach ([$galleryImage1Path, $galleryImage2Path, $galleryImage3Path] as $galleryImage) {
@@ -131,8 +147,9 @@ $updateRecipe->execute([
                 ?>
                 </p>
             </div>
-
-            <a href="./recipes_read.php?id=<?php echo $id ?>"><?php echo $title ?></a>
+            <button onclick="window.location.href='./recipes_read.php?id=<?php echo $id; ?>'" class="btn btn-primary">
+                <?php echo htmlspecialchars($title); ?>
+            </button>
         </div>
     </div>
     <?php require_once(__DIR__ . '/footer.php'); ?>
