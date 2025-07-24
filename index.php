@@ -24,20 +24,35 @@ error_reporting(E_ALL);
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
     >
+    <style>
+        .recipe-banner {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            
+        }
+
+        .recipe-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+    </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
     <div class="container">
         <!-- inclusion de l'entête du site -->
         <?php require_once(__DIR__ . '/header.php'); ?>
-        <h1>FaitMaison</h1>
-
-        <!-- Formulaire de connexion -->
-            
-
-        
             <?php foreach (getRecipes($recipes) as $recipe) : ?>
-                <article>
-                    <h3><a href="recipes_read.php?id=<?php echo($recipe['recipe_id']); ?>"><?php echo htmlspecialchars($recipe['title']); ?></a></h3>
+            <div class="card rounded-5">
+                <article class="card-body">
+                    
+                    <h3><a href="recipes_read.php?id=<?php echo($recipe['recipe_id']); ?>" style="text-decoration: none;"><?php echo htmlspecialchars($recipe['title']); ?></a></h3>
+                    
+                    
                     <div>
                         <?php
                             // On retire les balises HTML pour la prévisualisation
@@ -55,17 +70,14 @@ error_reporting(E_ALL);
                             <li class="list-group-item"><a class="link-danger" href="recipes_delete.php?id=<?php echo($recipe['recipe_id']); ?>">Supprimer l'article</a></li>
                         </ul>
                     <?php endif; ?>
+                    <div class="recipe-banner">
+                        <img src="<?php echo htmlspecialchars($recipe['imagePath']); ?>" alt="Image de la recette">
+                    </div>
                 </article>
-                
+            </div>
                 <br>
-                
-            <?php endforeach ?>
-            
+            <?php endforeach ?>     
         </div>
         <?php require_once(__DIR__ . '/footer.php'); ?>
-            
-        <!-- inclusion du bas de page du site -->
-        
 </body>
-    
 </html>
