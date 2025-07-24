@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Jul 24, 2025 at 11:14 AM
+-- Generation Time: Jul 24, 2025 at 11:12 AM
 -- Server version: 8.0.40
 -- PHP Version: 8.3.14
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `FaitMaison`
 --
+CREATE DATABASE IF NOT EXISTS `FaitMaison` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `FaitMaison`;
 
 -- --------------------------------------------------------
 
@@ -99,8 +101,3 @@ ALTER TABLE `recipes`
 --
 ALTER TABLE `users`
   MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
