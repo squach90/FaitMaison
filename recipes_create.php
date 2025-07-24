@@ -22,7 +22,7 @@ require_once(__DIR__ . '/isConnect.php');
         <?php require_once(__DIR__ . '/header.php'); ?>
 
         <h1>Ajouter une recette</h1>
-        <form action="recipes_post_create.php" method="POST">
+        <form action="recipes_post_create.php" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="title" class="form-label">Titre de la recette</label>
                 <input type="text" class="form-control" id="title" name="title" aria-describedby="title-help">
@@ -31,6 +31,16 @@ require_once(__DIR__ . '/isConnect.php');
             <div class="mb-3">
                 <label for="recipe" class="form-label">Description de la recette</label>
                 <textarea class="form-control" placeholder="Seulement du contenu vous appartenant ou libre de droits." id="recipe" name="recipe"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="screenshot" class="form-label">Image de Preview (Max: 8Mb)</label>
+                <input type="file" class="form-control" id="screenshot" name="screenshot" />
+            </div>
+            <div class="mb-3">
+                <label for="galleryImage" class="form-label">Image pour la Gallery (Max: 8Mb)</label>
+                <input type="file" class="form-control" id="galleryImage1" name="galleryImage1" />
+                <input type="file" class="form-control" id="galleryImage2" name="galleryImage2" />
+                <input type="file" class="form-control" id="galleryImage3" name="galleryImage3" />
             </div>
             <button type="submit" class="btn btn-primary">Envoyer</button>
         </form>

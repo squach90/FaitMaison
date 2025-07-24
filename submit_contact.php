@@ -22,7 +22,7 @@ if (isset($_FILES['screenshot']) && $_FILES['screenshot']['error'] === 0) {
     
     $fileInfo = pathinfo($_FILES['screenshot']['name']);
     $extension = $fileInfo['extension'];
-    $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png'];
+    $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'heic'];
     if (!in_array($extension, $allowedExtensions)) {
         echo "L'envoi n'a pas pu être effectué, l'extension {$extension} n'est pas autorisée";
         return;

@@ -23,17 +23,72 @@ if (
     return;
 }
 
+$allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'heic'];
+$maxFileSize = 8000000; // 8 Mo
+$uploadDir = __DIR__ . '/images/';
+
+if (!is_dir($uploadDir)) {
+    echo "Le dossier images est manquant.";
+    return;
+}
+
+/**
+ * Fonction pour gérer l'upload d'une image, retourne le chemin relatif ou null si erreur.
+ */
+function handleImageUpload(string $inputName, string $uploadDir, array $allowedExtensions, int $maxFileSize): ?string {
+    if (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] === 0) {
+        if ($_FILES[$inputName]['size'] > $maxFileSize) {
+            echo "Le fichier {$inputName} est trop volumineux.<br>";
+            return null;
+        }
+        $fileInfo = pathinfo($_FILES[$inputName]['name']);
+        $extension = strtolower($fileInfo['extension']);
+        if (!in_array($extension, $allowedExtensions)) {
+            echo "Extension {$extension} non autorisée pour {$inputName}.<br>";
+            return null;
+        }
+        // Génération d'un nom unique pour éviter les collisions
+        $filename = uniqid() . '.' . $extension;
+        $destination = $uploadDir . $filename;
+        if (move_uploaded_file($_FILES[$inputName]['tmp_name'], $destination)) {
+            // Retourne le chemin relatif pour insertion en base et affichage
+            return './images/' . $filename;
+        } else {
+            echo "Erreur lors de l'upload de {$inputName}.<br>";
+            return null;
+        }
+    }
+    // Pas d'image uploadée, on retourne null
+    return null;
+}
+
+// Traitement des uploads
+$screenshotPath = handleImageUpload('screenshot', $uploadDir, $allowedExtensions, $maxFileSize);
+$galleryImage1Path = handleImageUpload('galleryImage1', $uploadDir, $allowedExtensions, $maxFileSize);
+$galleryImage2Path = handleImageUpload('galleryImage2', $uploadDir, $allowedExtensions, $maxFileSize);
+$galleryImage3Path = handleImageUpload('galleryImage3', $uploadDir, $allowedExtensions, $maxFileSize);
+
+// Nettoyage des données
 $id = (int)$postData['id'];
 $title = trim(strip_tags($postData['title']));
 $recipe = trim($postData['recipe']);
 
-$insertRecipeStatement = $mysqlClient->prepare('UPDATE recipes SET title = :title, recipe = :recipe WHERE recipe_id = :id');
-$insertRecipeStatement->execute([
+// Préparation et exécution de la mise à jour SQL
+$updateRecipe = $mysqlClient->prepare('
+    UPDATE recipes
+    SET title = :title, recipe = :recipe, imagePath = :imagePath, galleryImagePath1 = :galleryImagePath1, galleryImagePath2 = :galleryImagePath2, galleryImagePath3 = :galleryImagePath3
+    WHERE recipe_id = :id
+');
+
+$updateRecipe->execute([
+    'id' => $id,
     'title' => $title,
     'recipe' => $recipe,
-    'id' => $id,
+    'imagePath' => $screenshotPath ?? '',
+    'galleryImagePath1' => $galleryImage1Path ?? '',
+    'galleryImagePath2' => $galleryImage2Path ?? '',
+    'galleryImagePath3' => $galleryImage3Path ?? '',
 ]);
-
 ?>
 
 <!DOCTYPE html>
@@ -59,8 +114,25 @@ $insertRecipeStatement->execute([
             <div class="card-body">
                 <h5 class="card-title"><?php echo(htmlspecialchars($title)); ?></h5>
                 <p class="card-text"><b>Email</b> : <?php echo htmlspecialchars($_SESSION['LOGGED_USER']['email']); ?></p>
-                <p class="card-text"><b>Recette</b> : <?php echo $recipe; ?></p>
+                <p class="card-text"><b>Recette</b> : <?php echo nl2br(htmlspecialchars($recipe)); ?></p>
+
+                <?php if ($screenshotPath): ?>
+                    <p><b>Image principale :</b><br>
+                    <img src="<?php echo htmlspecialchars($screenshotPath); ?>" alt="Image principale" class="img-fluid"></p>
+                <?php endif; ?>
+
+                <p><b>Galerie d'images :</b><br>
+                <?php
+                foreach ([$galleryImage1Path, $galleryImage2Path, $galleryImage3Path] as $galleryImage) {
+                    if ($galleryImage) {
+                        echo '<img src="' . htmlspecialchars($galleryImage) . '" alt="Image galerie" class="img-thumbnail me-2 mb-2" style="max-width:150px;">';
+                    }
+                }
+                ?>
+                </p>
             </div>
+
+            <a href="./recipes_read.php?id=<?php echo $id ?>"><?php echo $title ?></a>
         </div>
     </div>
     <?php require_once(__DIR__ . '/footer.php'); ?>
