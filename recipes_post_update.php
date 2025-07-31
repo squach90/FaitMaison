@@ -53,7 +53,7 @@ function handleImageUpload($mysqlClient, $inputName, $uploadDir, $allowedExtensi
         }
 
         $fileInfo = pathinfo($_FILES[$inputName]['name']);
-        $filename = $fileInfo['filename'] . '.' . strtolower($fileInfo['extension']);
+        $filename = uniqid() . '.' . strtolower($fileInfo['extension']);
         $destination = $uploadDir . $filename;
 
         // Vérifie si le chemin de l'image existe déjà dans la base de données
