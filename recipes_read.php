@@ -36,8 +36,8 @@ if (!$recipe) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FaitMaison - <?php echo($recipe['title']); ?></title>
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
     >
     <style>
         .recipe-banner {
@@ -117,7 +117,21 @@ if (!$recipe) {
             </div>
         <?php endif; ?>
 
+
         <h1><?php echo($recipe['title']); ?></h1>
+        <?php
+            $raw = $recipe['tags'];
+            $json = str_replace("'", '"', $raw);
+            $tags = json_decode($json, true);
+
+            if (is_array($tags)) {
+                foreach ($tags as $tag) {
+                    echo '<span class="badge text-bg-primary" style="margin-right: 5px;">' . htmlspecialchars($tag) . '</span>';
+                }
+            }
+        ?>
+        <br>
+        <br>
         <div class="row">
             <article class="col">
                 <?php echo($recipe['recipe']); ?>

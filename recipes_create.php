@@ -12,7 +12,7 @@ require_once(__DIR__ . '/isConnect.php');
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>FaitMaison - Ajout de recette</title>
         <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
             rel="stylesheet"
         >
     </head>
@@ -31,6 +31,9 @@ require_once(__DIR__ . '/isConnect.php');
                 <div class="mb-3">
                     <label for="recipe" class="form-label">Description de la recette</label>
                     <textarea class="form-control" placeholder="Décriver votre recette" id="recipe" name="recipe"></textarea>
+                    <br>
+                    <label for="title" class="form-label">Tags (a séparer par ", ")</label>
+                    <input type="text" class="form-control" id="tags" name="tags">
                 </div>
                 <div class="mb-3">
                     <label for="screenshot" class="form-label">Image de Preview (Max: 8Mb)</label>

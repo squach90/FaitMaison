@@ -70,11 +70,16 @@ $galleryImage3Path = handleImageUpload('galleryImage3', $uploadDir, $allowedExte
 $title = trim(strip_tags($postData['title']));
 $recipe = trim($postData['recipe']);
 
+$tags_brut = $postData['tags'];
+$tags = explode(',', $tags_brut);
+$tags = array_map('trim', $tags);
+
+
 // Préparation et exécution de l'insertion SQL
 $insertRecipe = $mysqlClient->prepare('
     INSERT INTO recipes 
-    (title, recipe, author, is_enabled, imagePath, galleryImagePath1, galleryImagePath2, galleryImagePath3) 
-    VALUES (:title, :recipe, :author, :is_enabled, :imagePath, :galleryImagePath1, :galleryImagePath2, :galleryImagePath3)
+    (title, recipe, author, is_enabled, imagePath, galleryImagePath1, galleryImagePath2, galleryImagePath3, tags) 
+    VALUES (:title, :recipe, :author, :is_enabled, :imagePath, :galleryImagePath1, :galleryImagePath2, :galleryImagePath3, :tags)
 ');
 
 $insertRecipe->execute([
@@ -86,6 +91,7 @@ $insertRecipe->execute([
     'galleryImagePath1' => $galleryImage1Path ?? '',
     'galleryImagePath2' => $galleryImage2Path ?? '',
     'galleryImagePath3' => $galleryImage3Path ?? '',
+    'tags' => json_encode($tags, JSON_UNESCAPED_UNICODE),
 ]);
 ?>
 

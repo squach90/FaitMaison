@@ -21,7 +21,7 @@ error_reporting(E_ALL);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FaitMaison - Page d'accueil</title>
     <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
             rel="stylesheet"
     >
     <style>
@@ -47,12 +47,9 @@ error_reporting(E_ALL);
         <!-- inclusion de l'entête du site -->
         <?php require_once(__DIR__ . '/header.php'); ?>
             <?php foreach (getRecipes($recipes) as $recipe) : ?>
-            <div class="card rounded-5">
+            <div class="card rounded-4">
                 <article class="card-body">
-                    
                     <h3><a href="recipes_read.php?id=<?php echo($recipe['recipe_id']); ?>" style="text-decoration: none;"><?php echo htmlspecialchars($recipe['title']); ?></a></h3>
-                    
-                    
                     <div>
                         <?php
                             // On retire les balises HTML pour la prévisualisation
@@ -63,16 +60,29 @@ error_reporting(E_ALL);
                             echo htmlspecialchars($preview);
                         ?>
                     </div>
-                    <i><?php echo htmlspecialchars(displayAuthor($recipe['author'], $users)); ?></i>
+                    <?php if (!empty($recipe['imagePath'])) : ?>
+                        <div class="recipe-banner">
+                            <img src="<?php echo htmlspecialchars($recipe['imagePath']); ?>" alt="Image de la recette">
+                        </div>
+                    <?php endif; ?>
+                    <i><?php echo htmlspecialchars(displayAuthor($recipe['author'], $users)); ?></i><br>
+                    <?php
+                        $raw = $recipe['tags'];
+                        $json = str_replace("'", '"', $raw);
+                        $tags = json_decode($json, true);
+
+                        if (is_array($tags)) {
+                            foreach ($tags as $tag) {
+                                echo '<span class="badge text-bg-primary" style="margin-right: 5px;">' . htmlspecialchars($tag) . '</span>';
+                            }
+                        }
+                    ?>
                     <?php if (isset($_SESSION['LOGGED_USER']) && $recipe['author'] === $_SESSION['LOGGED_USER']['email']) : ?>
                         <ul class="list-group list-group-horizontal" style="padding-top: 10px">
                             <li class="list-group-item"><a class="link-warning" href="recipes_update.php?id=<?php echo($recipe['recipe_id']); ?>">Editer l'article</a></li>
                             <li class="list-group-item"><a class="link-danger" href="recipes_delete.php?id=<?php echo($recipe['recipe_id']); ?>">Supprimer l'article</a></li>
                         </ul>
                     <?php endif; ?>
-                    <div class="recipe-banner">
-                        <img src="<?php echo htmlspecialchars($recipe['imagePath']); ?>" alt="Image de la recette">
-                    </div>
                 </article>
             </div>
                 <br>

@@ -94,10 +94,15 @@ $id = (int)$postData['id'];
 $title = trim(strip_tags($postData['title']));
 $recipe = trim($postData['recipe']);
 
+$tags_brut = $postData['tags'];
+$tags = explode(',', $tags_brut);
+$tags = array_map('trim', $tags);
+
+
 // Préparation et exécution de la mise à jour SQL
 $updateRecipe = $mysqlClient->prepare('
     UPDATE recipes
-    SET title = :title, recipe = :recipe, imagePath = :imagePath, galleryImagePath1 = :galleryImagePath1, galleryImagePath2 = :galleryImagePath2, galleryImagePath3 = :galleryImagePath3
+    SET title = :title, recipe = :recipe, imagePath = :imagePath, galleryImagePath1 = :galleryImagePath1, galleryImagePath2 = :galleryImagePath2, galleryImagePath3 = :galleryImagePath3, tags = :tags
     WHERE recipe_id = :id
 ');
 
@@ -109,6 +114,7 @@ $updateRecipe->execute([
     'galleryImagePath1' => $galleryImage1Path ?? '',
     'galleryImagePath2' => $galleryImage2Path ?? '',
     'galleryImagePath3' => $galleryImage3Path ?? '',
+    'tags' => json_encode($tags, JSON_UNESCAPED_UNICODE),
 ]);
 ?>
 

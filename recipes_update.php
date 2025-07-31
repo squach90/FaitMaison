@@ -33,8 +33,8 @@ $recipe = $retrieveRecipeStatement->fetch(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FaitMaison - Edition de recette</title>
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
     >
 </head>
 <script>
@@ -67,6 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="mb-3">
                 <label for="recipe" class="form-label">Description de la recette</label>
                 <textarea class="form-control" placeholder="Seulement du contenu vous appartenant ou libre de droits." id="recipe" name="recipe"><?php echo $recipe['recipe']; ?></textarea>
+                <br>
+                <label for="title" class="form-label">Tags (a séparer par ", ")</label>
+                <input type="text" class="form-control" id="tags" name="tags">
             </div>
             <div class="mb-3">
                 <label for="screenshot" class="form-label">Image de Preview (Max: 8Mb)</label>
