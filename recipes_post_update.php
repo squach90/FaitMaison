@@ -83,11 +83,49 @@ function handleImageUpload($mysqlClient, $inputName, $uploadDir, $allowedExtensi
     return null;
 }
 
+function removeImageMetadata(string $imagePath): void {
+    $ext = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+
+    switch ($ext) {
+        case 'jpg':
+        case 'jpeg':
+            $img = imagecreatefromjpeg($imagePath);
+            if ($img !== false) {
+                imagejpeg($img, $imagePath, 90); // réécrit sans EXIF
+                imagedestroy($img);
+            }
+            break;
+        case 'png':
+            $img = imagecreatefrompng($imagePath);
+            if ($img !== false) {
+                imagepng($img, $imagePath);
+                imagedestroy($img);
+            }
+            break;
+        case 'gif':
+            $img = imagecreatefromgif($imagePath);
+            if ($img !== false) {
+                imagegif($img, $imagePath);
+                imagedestroy($img);
+            }
+            break;
+        default:
+            // pour HEIC ou autres non supportés par GD, on ne fait rien
+            break;
+    }
+}
+
+
 // Traitement des uploads
 $screenshotPath = handleImageUpload($mysqlClient, 'screenshot', $uploadDir, $allowedExtensions, $maxFileSize);
 $galleryImage1Path = handleImageUpload($mysqlClient, 'galleryImage1', $uploadDir, $allowedExtensions, $maxFileSize);
 $galleryImage2Path = handleImageUpload($mysqlClient, 'galleryImage2', $uploadDir, $allowedExtensions, $maxFileSize);
 $galleryImage3Path = handleImageUpload($mysqlClient, 'galleryImage3', $uploadDir, $allowedExtensions, $maxFileSize);
+
+if ($screenshotPath) removeImageMetadata(__DIR__ . '/' . ltrim($screenshotPath, './'));
+if ($galleryImage1Path) removeImageMetadata(__DIR__ . '/' . ltrim($galleryImage1Path, './'));
+if ($galleryImage2Path) removeImageMetadata(__DIR__ . '/' . ltrim($galleryImage2Path, './'));
+if ($galleryImage3Path) removeImageMetadata(__DIR__ . '/' . ltrim($galleryImage3Path, './'));
 
 // Nettoyage des données
 $id = (int)$postData['id'];
