@@ -113,6 +113,10 @@ $tags_brut = $postData['tags'];
 $tags = explode(',', $tags_brut);
 $tags = array_map('trim', $tags);
 
+// Ajouter # devant chaque tag s'il n'y est pas déjà
+$tags = array_map(function($tag) {
+    return strpos($tag, '#') === 0 ? $tag : '#' . $tag;
+}, $tags);
 
 // Préparation et exécution de l'insertion SQL
 $insertRecipe = $mysqlClient->prepare('
@@ -132,6 +136,7 @@ $insertRecipe->execute([
     'galleryImagePath3' => $galleryImage3Path ?? '',
     'tags' => json_encode($tags, JSON_UNESCAPED_UNICODE),
 ]);
+
 ?>
 
 <!DOCTYPE html>

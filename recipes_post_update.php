@@ -163,7 +163,12 @@ foreach ([$screenshotPath, $galleryImage1Path, $galleryImage2Path, $galleryImage
 $id     = (int)$postData['id'];
 $title  = trim(strip_tags($postData['title']));
 $recipe = trim($postData['recipe']);
-$tags   = array_map('trim', explode(',', $postData['tags']));
+$tags = array_map('trim', explode(',', $postData['tags']));
+
+// Ajouter # devant chaque tag s'il n'y est pas déjà
+$tags = array_map(function($tag) {
+    return strpos($tag, '#') === 0 ? $tag : '#' . $tag;
+}, $tags);
 
 // Mise à jour dans la base de données
 $updateRecipe = $mysqlClient->prepare('
@@ -188,6 +193,7 @@ $updateRecipe->execute([
     'galleryImagePath3' => $galleryImage3Path ?? '',
     'tags'              => json_encode($tags, JSON_UNESCAPED_UNICODE),
 ]);
+
 ?>
 
 <!DOCTYPE html>
